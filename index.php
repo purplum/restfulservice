@@ -5,7 +5,7 @@ require 'Slim/Slim.php';
 
 $app = new \Slim\Slim();
 
-$app->get('/employees', 'getEmployees');
+$app->get('?employees', 'getEmployees');
 $app->get('/employees/:id', 'getEmployee');
 $app->get('/employees/:id/reports', 'getReports');
 
@@ -148,7 +148,7 @@ function getModifiedEmployees($modifiedSince) {
 function getConnection() {
     $dbhost="127.0.0.1";
     $dbuser="root";
-    $dbpass="";
+    $dbpass="123";
     $dbname="directory";
     $dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);  
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
