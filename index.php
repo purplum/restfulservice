@@ -5,7 +5,7 @@ require 'Slim/Slim.php';
 
 $app = new \Slim\Slim();
 
-$app->get('?employees', 'getEmployees');
+$app->get('/employees', 'getEmployees');
 $app->get('/employees/:id', 'getEmployee');
 $app->get('/employees/:id/reports', 'getReports');
 
