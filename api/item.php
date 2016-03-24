@@ -46,7 +46,6 @@ function getTitles() {
 function getTitle($id) {
     $sql = "select e.Title, e.FeedID, e.ContentID, e.Date " .
             "from rsscontent e " .
-            "order by e.Date " .
             "where e.ContentID=:id";
     try {
         $db = getConnection();
