@@ -15,7 +15,7 @@ $app->run();
 function getTitles() {
 
     if (isset($_GET['name'])) {
-        return getEmployeesByName($_GET['name']);
+        return getTitleByName($_GET['name']);
     } else if (isset($_GET['modifiedSince'])) {
         return getModifiedEmployees($_GET['modifiedSince']);
     }
@@ -67,26 +67,23 @@ function getTitle($id) {
     }
 }
 
-function getReports($id) {
-
-    $sql = "select e.id, e.firstName, e.lastName, e.title, count(r.id) reportCount " .
-            "from employee e left join employee r on r.managerId = e.id " .
-            "where e.managerId=:id " .
-            "group by e.id order by e.lastName, e.firstName";
-
+function getCategoryTitle($feedid) {
+    $sql = "select e.Title, e.FeedID, e.ContentID, e.Date " .
+            "from rsscontent e " .
+            "where e.FeedID=:$feedid";
     try {
         $db = getConnection();
         $stmt = $db->prepare($sql);
-        $stmt->bindParam("id", $id);
+        $stmt->bindParam("feedid", $feedid);
         $stmt->execute();
-        $employees = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $employee = $stmt->fetchObject();
         $db = null;
 
         // Include support for JSONP requests
         if (!isset($_GET['callback'])) {
-            echo json_encode($employees);
+            echo json_encode($employee);
         } else {
-            echo $_GET['callback'] . '(' . json_encode($employees) . ');';
+            echo $_GET['callback'] . '(' . json_encode($employee) . ');';
         }
 
     } catch(PDOException $e) {
@@ -94,11 +91,11 @@ function getReports($id) {
     }
 }
 
-function getEmployeesByName($name) {
-    $sql = "select e.id, e.firstName, e.lastName, e.title, count(r.id) reportCount " .
-            "from employee e left join employee r on r.managerId = e.id " .
-            "WHERE UPPER(CONCAT(e.firstName, ' ', e.lastName)) LIKE :name " .
-            "group by e.id order by e.lastName, e.firstName";
+function getTitleByName($name) {
+    $sql = "select e.Title, e.FeedID, e.ContentID, e.Date " .
+            "from rsscontent e " .
+            "WHERE e.Title LIKE :name " .
+            "group by e.ContentID order by e.Date";
     try {
         $db = getConnection();
         $stmt = $db->prepare($sql);
