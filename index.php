@@ -16,7 +16,7 @@ $app->run();
 function getTitles() {
 
     if (isset($_GET['name'])) {
-        return getEmployeesByName($_GET['name']);
+        return getTitleByName($_GET['name']);
     } else if (isset($_GET['modifiedSince'])) {
         return getModifiedEmployees($_GET['modifiedSince']);
     }
@@ -74,29 +74,29 @@ function getEmployees() {
     echo "go";
 }
 
-function getEmployee($id) {
-    $sql = "select e.id, e.firstName, e.lastName, e.title, e.officePhone, e.cellPhone, e.email, e.managerId, e.twitterId, CONCAT(m.firstName, ' ', m.lastName) managerName, count(r.id) reportCount " .
-            "from employee e " .
-            "left join employee r on r.managerId = e.id " .
-            "left join employee m on e.managerId = m.id " .
-            "where e.id=:id";
+function getTitleByName($name) {
+    $sql = "select e.Title, e.FeedID, e.ContentID, e.Date " .
+            "from rsscontent e " .
+            "WHERE e.Title LIKE :name " .
+            "group by e.ContentID order by e.Date";
     try {
         $db = getConnection();
         $stmt = $db->prepare($sql);
-        $stmt->bindParam("id", $id);
+        $name = "%".$name."%";
+        $stmt->bindParam("name", $name);
         $stmt->execute();
-        $employee = $stmt->fetchObject();
+        $employees = $stmt->fetchAll(PDO::FETCH_OBJ);
         $db = null;
 
         // Include support for JSONP requests
         if (!isset($_GET['callback'])) {
-            echo json_encode($employee);
+            echo json_encode($employees);
         } else {
-            echo $_GET['callback'] . '(' . json_encode($employee) . ');';
+            echo $_GET['callback'] . '(' . json_encode($employees) . ');';
         }
 
     } catch(PDOException $e) {
-        echo '{"error":{"text":'. $e->getMessage() .'}}';
+        echo '{"error":{"text":'. $e->getMessage() .'}}'; 
     }
 }
 
